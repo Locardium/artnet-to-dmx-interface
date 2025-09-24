@@ -145,11 +145,8 @@ namespace Interface {
         using clock = chrono::steady_clock;
         auto next = clock::now();
         uint8_t localBuffer[513];
-        uint8_t oldSharedBuffer[512];
 
         while (running.load()) {
-            if (memcmp(oldSharedBuffer, sharedBuffer, 512) == 0) continue;
-
             {
                 std::lock_guard<std::mutex> lock(bufferMutex);
                 localBuffer[0] = 0;
@@ -166,9 +163,6 @@ namespace Interface {
             if (status != FT_OK && written != 513) {
                 cerr << "[Interface] Write interfaces fail. Code: " << FTStatusToString(status) << "\n";
             }
-
-            memcpy(oldSharedBuffer, sharedBuffer, 512);
-
 
             next += std::chrono::milliseconds(refreshRate);
             std::this_thread::sleep_until(next);
