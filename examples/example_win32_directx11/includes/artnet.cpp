@@ -32,44 +32,6 @@ namespace ArtNet {
     void cleanup_socket();
     bool parse_artdmx(const uint8_t* packet, int bytes, vector<uint8_t>& dmxBuffer, uint16_t& outUniverse);
 
-    vector<string> listInterfaces() {
-        vector<string> result;
-
-        result.push_back("0.0.0.0");
-
-        ULONG flags = GAA_FLAG_INCLUDE_PREFIX;
-        ULONG family = AF_INET; 
-        PIP_ADAPTER_ADDRESSES adapters = nullptr;
-        ULONG buflen = 0;
-
-        if (GetAdaptersAddresses(family, flags, nullptr, adapters, &buflen) == ERROR_BUFFER_OVERFLOW) {
-            adapters = (IP_ADAPTER_ADDRESSES*)malloc(buflen);
-        }
-        if (!adapters) {
-            return result;
-        }
-
-        if (GetAdaptersAddresses(family, flags, nullptr, adapters, &buflen) != NO_ERROR) {
-            free(adapters);
-            return result;
-        }
-
-        for (PIP_ADAPTER_ADDRESSES cur = adapters; cur; cur = cur->Next) {
-            for (PIP_ADAPTER_UNICAST_ADDRESS ua = cur->FirstUnicastAddress; ua; ua = ua->Next) {
-                SOCKADDR* addr = ua->Address.lpSockaddr;
-                if (addr->sa_family == AF_INET) {
-                    char ipbuf[INET_ADDRSTRLEN] = { 0 };
-                    sockaddr_in* sa_in = (sockaddr_in*)addr;
-                    inet_ntop(AF_INET, &sa_in->sin_addr, ipbuf, sizeof(ipbuf));
-                    result.push_back(string(ipbuf));
-                }
-            }
-        }
-
-        free(adapters);
-        return result;
-    }
-
     void selectInterface(const string& ip) {
         selectedIp = ip;
     }

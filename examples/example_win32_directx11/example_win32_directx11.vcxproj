@@ -21,6 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9F316E83-5AE5-4939-A723-305A94F48005}</ProjectGuid>
     <RootNamespace>example_win32_directx11</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -103,6 +104,7 @@
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>FTD2XX_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -142,6 +144,7 @@
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>FTD2XX_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -165,8 +168,10 @@
     <ClInclude Include="includes\ftd2xx.h" />
     <ClInclude Include="includes\globals.h" />
     <ClInclude Include="includes\interface.h" />
+    <ClInclude Include="includes\netInterface.h" />
     <ClInclude Include="includes\opensans-bold.h" />
     <ClInclude Include="includes\opensans-regular.h" />
+    <ClInclude Include="includes\timer.h" />
     <ClInclude Include="includes\TitleBar.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
@@ -183,6 +188,7 @@
     <ClCompile Include="includes\config.cpp" />
     <ClCompile Include="includes\globals.cpp" />
     <ClCompile Include="includes\interface.cpp" />
+    <ClCompile Include="includes\netInterface.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

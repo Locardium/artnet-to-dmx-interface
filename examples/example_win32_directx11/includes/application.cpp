@@ -2,6 +2,7 @@
 
 #include "imgui.h"
 
+#include "netInterface.h"
 #include "artnet.h"
 #include "interface.h"
 
@@ -11,11 +12,12 @@
 #include <thread>
 #include <chrono>
 
+
 static bool receiving = false;
 static vector<uint8_t> dmx;
 static int universe = 0;
 
-static vector<string> networkInterfaces = ArtNet::listInterfaces();
+vector<string> networkInterfaces = netInterface::listInterfaces();
 static int currentIndex = 0;
 
 static int refreshRate = 25;
@@ -127,7 +129,24 @@ namespace Application {
         return ImVec4(R / 255, G / 255, B / 255, A / 255);
     }
 
-    void onLoad() {
+    void onLoad(int argc, LPWSTR* argv) {
+        //Args
+        for (int i = 0; i < argc; ++i) {
+            wcout << argv[i] << endl;
+            if (wcscmp(argv[i], L"install-net-adapter") == 0)
+            {
+                cout << "nas" << endl;
+                bool res = netInterface::create();
+                if (res) {
+                    wprintf(L"Loopback instalado correctamente.\n");
+                    networkInterfaces = netInterface::listInterfaces();
+                }
+                else {
+                    wprintf(L"Error al instalar");
+                }
+            }
+        }
+
         // Load ip
         string loadedIp = Config::read("ip");
         if (loadedIp != "")
@@ -244,7 +263,7 @@ namespace Application {
         ImGuiViewport* viewport = ImGui::GetMainViewport();
 
         {
-            ImVec2 tabSize = ImVec2(viewport->Size.x - 20, 220);
+            ImVec2 tabSize = ImVec2(viewport->Size.x - 20, 264);
             //ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
             ImGui::SetCursorPosX(10);
             ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
@@ -306,7 +325,7 @@ namespace Application {
                 ImGui::SetCursorPosX(tabSize.x - 120 - 10);
                 if (!networkInterfaces.empty())
                 {
-                    static std::vector<const char*> labels;
+                    std::vector<const char*> labels;
                     if (labels.empty()) for (auto& s : networkInterfaces) labels.push_back(s.c_str());
 
                     ImGui::PushItemWidth(120);
@@ -385,6 +404,25 @@ namespace Application {
                 ImGui::PopStyleVar();
                 ImGui::PopItemWidth();
                 if (refreshRate < 1) refreshRate = 1;
+
+                // Install Net Interface
+                ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20);
+                ImGui::Text("Create a network interface");
+                ImGui::SameLine();
+                auto btnTxt = "Install";
+                ImGui::SetCursorPosX(tabSize.x - (ImGui::CalcTextSize(btnTxt).x + 10) - 10);
+                if (ImGui::Button(btnTxt))
+                {
+                    bool res = netInterface::create();
+                    if (res) {
+                        wprintf(L"Loopback instalado correctamente.\n");
+                        networkInterfaces = netInterface::listInterfaces();
+                    }
+                    else {
+                        wprintf(L"Error al instalar: %u\n", res);
+                    }
+                }
 
                 // Debug mode
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);

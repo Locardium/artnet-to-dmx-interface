@@ -34,6 +34,8 @@
     <ClInclude Include="includes\globals.h" />
     <ClInclude Include="includes\config.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="includes\netInterface.h" />
+    <ClInclude Include="includes\timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\imgui.cpp">
@@ -65,6 +67,7 @@
     <ClCompile Include="includes\interface.cpp" />
     <ClCompile Include="includes\config.cpp" />
     <ClCompile Include="includes\globals.cpp" />
+    <ClCompile Include="includes\netInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.txt" />

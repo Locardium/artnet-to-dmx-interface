@@ -23,6 +23,7 @@
 #include <Uxtheme.h>
 #include <dwmapi.h>
 
+
 // Data
 static ID3D11Device*            g_pd3dDevice = nullptr;
 static ID3D11DeviceContext*     g_pd3dDeviceContext = nullptr;
@@ -38,105 +39,7 @@ void CreateRenderTarget();
 void CleanupRenderTarget();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-#include <windows.h>
-#include <setupapi.h>
-#include <initguid.h>
-#include <devguid.h>
-#pragma comment(lib, "setupapi.lib")
 
-
-int InstalarLoopback() {
-    // 1) Crear DeviceInfoList para la clase de red
-    HDEVINFO hDevInfo = SetupDiCreateDeviceInfoList(&GUID_DEVCLASS_NET, nullptr);
-    if (hDevInfo == INVALID_HANDLE_VALUE) {
-        return GetLastError();
-    }
-
-    SP_DEVINFO_DATA devInfo = { sizeof(devInfo) };
-
-    // 2) Crear un nuevo DeviceInfo
-    if (!SetupDiCreateDeviceInfo(
-        hDevInfo,
-        TEXT("Microsoft KM-TEST Loopback Adapter"),
-        &GUID_DEVCLASS_NET,
-        nullptr,
-        nullptr,
-        DICD_GENERATE_ID,
-        &devInfo)) {
-        DWORD err = GetLastError();
-        SetupDiDestroyDeviceInfoList(hDevInfo);
-        return err;
-    }
-
-    // 3) Asignar el Hardware ID "*MSLOOP\0\0"
-    const wchar_t* hwId = L"*MSLOOP\0\0";
-    if (!SetupDiSetDeviceRegistryProperty(
-        hDevInfo,
-        &devInfo,
-        SPDRP_HARDWAREID,
-        reinterpret_cast<const BYTE*>(hwId),
-        (DWORD)((wcslen(hwId) + 2) * sizeof(wchar_t)))) {
-        DWORD err = GetLastError();
-        SetupDiDestroyDeviceInfoList(hDevInfo);
-        return err;
-    }
-
-    // 4) Registrar el dispositivo en PnP
-    if (!SetupDiCallClassInstaller(DIF_REGISTERDEVICE, hDevInfo, &devInfo)) {
-        DWORD err = GetLastError();
-        SetupDiDestroyDeviceInfoList(hDevInfo);
-        return err;
-    }
-
-    // --- PASOS NUEVOS PARA SELECCIONAR EL DRIVER ---
-
-    // 5) Construir la lista de drivers compatibles
-    if (!SetupDiBuildDriverInfoList(hDevInfo, &devInfo, SPDIT_COMPATDRIVER)) {
-        DWORD err = GetLastError();
-        SetupDiDestroyDeviceInfoList(hDevInfo);
-        return err;
-    }
-
-    // 6) Obtener el primer SP_DRVINFO_DATA (índice 0)
-    SP_DRVINFO_DATA drvInfo = { sizeof(drvInfo) };
-    if (!SetupDiEnumDriverInfo(
-        hDevInfo,
-        &devInfo,
-        SPDIT_COMPATDRIVER,
-        0,
-        &drvInfo)) {
-        DWORD err = GetLastError();
-        SetupDiDestroyDeviceInfoList(hDevInfo);
-        return err;
-    }
-
-    // 7) Seleccionar ese driver
-    if (!SetupDiSetSelectedDriver(hDevInfo, &devInfo, &drvInfo)) {
-        DWORD err = GetLastError();
-        SetupDiDestroyDeviceInfoList(hDevInfo);
-        return err;
-    }
-
-    // 8) Notificar al instalador la selección
-    if (!SetupDiCallClassInstaller(DIF_SELECTDEVICE, hDevInfo, &devInfo)) {
-        DWORD err = GetLastError();
-        SetupDiDestroyDeviceInfoList(hDevInfo);
-        return err;
-    }
-
-    // --- FIN DE LA SELECCIÓN, AHORA SÍ INSTALAR ---
-
-    // 9) Instalar el dispositivo con el driver seleccionado
-    if (!SetupDiCallClassInstaller(DIF_INSTALLDEVICE, hDevInfo, &devInfo)) {
-        DWORD err = GetLastError();
-        SetupDiDestroyDeviceInfoList(hDevInfo);
-        return err;
-    }
-
-    // 10) Limpiar
-    SetupDiDestroyDeviceInfoList(hDevInfo);
-    return 0; // Éxito
-}
 
 // Main code
 int WinMain(
@@ -154,16 +57,6 @@ int WinMain(
         freopen("CONOUT$", "w", stderr);
         freopen("CONIN$", "r", stdin);
     #endif
-
-
-        int res = InstalarLoopback();
-        if (res == 0) {
-            wprintf(L"Loopback instalado correctamente.\n");
-        }
-        else {
-            wprintf(L"Error al instalar: %u\n", res);
-        }
-
 
     // Create application window
     ImGui_ImplWin32_EnableDpiAwareness();
@@ -186,7 +79,12 @@ int WinMain(
     ::UpdateWindow(hwnd);
 
     // Call app load event
-    Application::onLoad();
+    int argc;
+    LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc); // convierte la línea en args Unicode
+
+    LocalFree(argv);
+
+    Application::onLoad(argc, argv);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();

@@ -11,9 +11,12 @@
 #include "config.h"
 
 #define WINDOWS_WIDTH 650
-#define WINDOWS_HEIGHT 555
+#define WINDOWS_HEIGHT 600
 
 extern HWND hwnd;
 extern bool showConsole;
+
+bool isRunningAsAdmin();
+void reLaunchAsAdmin(const wchar_t* params = L"");
 
 using namespace std;
