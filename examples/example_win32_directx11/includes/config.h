@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <iostream>
 
 namespace Config
 {
@@ -19,7 +20,7 @@ namespace Config
 
     inline bool write(const std::string& key, bool value)
     {
-        return write(key, value ? "true" : "false");
+        return write(key, std::to_string(value));
     }
 
     template<typename T>

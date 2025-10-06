@@ -11,7 +11,7 @@
 #include "config.h"
 
 #define WINDOWS_WIDTH 650
-#define WINDOWS_HEIGHT 600
+#define WINDOWS_HEIGHT 644
 
 extern HWND hwnd;
 extern bool showConsole;

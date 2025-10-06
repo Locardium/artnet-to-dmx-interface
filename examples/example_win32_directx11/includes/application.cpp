@@ -5,6 +5,7 @@
 #include "netInterface.h"
 #include "artnet.h"
 #include "interface.h"
+#include "node.h"
 
 #include "opensans-regular.h"
 #include "opensans-bold.h"
@@ -21,6 +22,8 @@ vector<string> networkInterfaces = netInterface::listInterfaces();
 static int currentIndex = 0;
 
 static int refreshRate = 25;
+
+bool ma2Nodes = true;
 
 static ImFont* Default;
 static ImFont* SubPage;
@@ -196,6 +199,41 @@ namespace Application {
                 std::cerr << "[APP-Config] Error 'refresh rate' is out of range of int.\n";
             }
         }
+
+        // Load Nodes
+        string loadedMa2Nodes = Config::read("ma2Nodes");
+        if (loadedMa2Nodes != "")
+        {
+            try {
+                ma2Nodes = std::stoi(loadedMa2Nodes);
+            }
+            catch (const std::invalid_argument&) {
+                std::cerr << "[APP-Config] Error 'MA2 Nodes' is not a valid bool.\n";
+            }
+        }
+        if (ma2Nodes) node::start();
+
+        // Show console
+        string loadedShowConsole = Config::read("showConsole");
+        if (loadedShowConsole != "")
+        {
+            try {
+                showConsole = std::stoi(loadedShowConsole);
+            }
+            catch (const std::invalid_argument&) {
+                std::cerr << "[APP-Config] Error 'Show debug console' is not a valid bool.\n";
+            }
+        }
+#ifndef _DEBUG
+        if (showConsole)
+        {
+            AllocConsole();
+            freopen("CONOUT$", "w", stdout);
+            freopen("CONOUT$", "w", stderr);
+            freopen("CONIN$", "r", stdin);
+        }
+#endif 
+
     }
 
     void style() {
@@ -263,7 +301,7 @@ namespace Application {
         ImGuiViewport* viewport = ImGui::GetMainViewport();
 
         {
-            ImVec2 tabSize = ImVec2(viewport->Size.x - 20, 264);
+            ImVec2 tabSize = ImVec2(viewport->Size.x - 20, 308);
             //ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
             ImGui::SetCursorPosX(10);
             ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
@@ -405,6 +443,26 @@ namespace Application {
                 ImGui::PopItemWidth();
                 if (refreshRate < 1) refreshRate = 1;
 
+                // Nodes
+                ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20);
+                ImGui::Text("MA2 Nodes");
+                ImGui::SameLine();
+                ImGui::SetCursorPosX(tabSize.x - 27 - 10);
+                if (ImGui::Checkbox("##ma2-nodes", &ma2Nodes))
+                {
+                    Config::write("ma2Nodes", ma2Nodes);
+
+                    if (ma2Nodes)
+                    {
+                        node::start();
+                    }
+                    else
+                    {
+                        node::stop();
+                    }
+                }
+
                 // Install Net Interface
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20);
@@ -432,6 +490,8 @@ namespace Application {
                 ImGui::SetCursorPosX(tabSize.x - 27 - 10);
                 if (ImGui::Checkbox("##show-debug-console", &showConsole))
                 {
+                    Config::write("showConsole", showConsole);
+
                     if (showConsole)
                     {
                         AllocConsole();

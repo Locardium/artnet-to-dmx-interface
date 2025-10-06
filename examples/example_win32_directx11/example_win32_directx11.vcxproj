@@ -169,8 +169,10 @@
     <ClInclude Include="includes\globals.h" />
     <ClInclude Include="includes\interface.h" />
     <ClInclude Include="includes\netInterface.h" />
+    <ClInclude Include="includes\node.h" />
     <ClInclude Include="includes\opensans-bold.h" />
     <ClInclude Include="includes\opensans-regular.h" />
+    <ClInclude Include="includes\payload.h" />
     <ClInclude Include="includes\timer.h" />
     <ClInclude Include="includes\TitleBar.h" />
     <ClInclude Include="resource.h" />
@@ -189,6 +191,7 @@
     <ClCompile Include="includes\globals.cpp" />
     <ClCompile Include="includes\interface.cpp" />
     <ClCompile Include="includes\netInterface.cpp" />
+    <ClCompile Include="includes\node.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
